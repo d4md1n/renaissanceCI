@@ -1,55 +1,49 @@
-"""
-Avoid coupling the sender of a request to its receiver by giving
-more than one object a chance to handle the request. Chain the receiving
-objects and pass the request along the chain until an object handles it.
-"""
-
 import abc
 
-
-class Handler(metaclass=abc.ABCMeta):
-    """
-    Define an interface for handling requests.
-    Implement the successor link.
-    """
+class ChainLink(metaclass=abc.ABCMeta) :
 
     def __init__(self, successor=None):
         self._successor = successor
 
+class PipelineChainLink(ChainLink, metaclass=abc.ABCMeta):
+    
     @abc.abstractmethod
-    def handle_request(self):
+    def before_process(self, *args, **kwargs):
         pass
 
+    @abc.abstractmethod
+    def process(self, *args, **kwargs):
+        pass
 
-class ConcreteHandler1(Handler):
-    """
-    Handle request, otherwise forward it to the successor.
-    """
+    @abc.abstractmethod
+    def after_process(self, *args, **kwargs):
+        pass
 
-    def handle_request(self):
-        if True:  # if can_handle:
-            pass
-        elif self._successor is not None:
-            self._successor.handle_request()
+    def complete(self):
+        if self._successor is not None:
+            self._successor.run()
 
+    def run(self):
+        self.before_process()
+        self.process()
+        self.after_process()
+        self.complete()
+    
+    
+class HelloPrinter(PipelineChainLink):
+    
+    def before_process(self):
+        pass
 
-class ConcreteHandler2(Handler):
-    """
-    Handle request, otherwise forward it to the successor.
-    """
+    def process(self, value=1):
+        print("hello world")
 
-    def handle_request(self):
-        if False:  # if can_handle:
-            pass
-        elif self._successor is not None:
-            self._successor.handle_request()
-
+    def after_process(self):
+        pass
 
 def main():
-    concrete_handler_1 = ConcreteHandler1()
-    concrete_handler_2 = ConcreteHandler2(concrete_handler_1)
-    concrete_handler_2.handle_request()
-
+    hello = HelloPrinter()
+    HelloPrinter(hello).run()
 
 if __name__ == "__main__":
     main()
