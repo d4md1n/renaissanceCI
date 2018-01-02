@@ -8,15 +8,15 @@ class ChainLink(metaclass=abc.ABCMeta) :
 class PipelineChainLink(ChainLink, metaclass=abc.ABCMeta):
     
     @abc.abstractmethod
-    def before_process(self, *args, **kwargs):
+    def before_process(self):
         pass
 
     @abc.abstractmethod
-    def process(self, *args, **kwargs):
+    def process(self):
         pass
 
     @abc.abstractmethod
-    def after_process(self, *args, **kwargs):
+    def after_process(self):
         pass
 
     def complete(self):
@@ -28,22 +28,3 @@ class PipelineChainLink(ChainLink, metaclass=abc.ABCMeta):
         self.process()
         self.after_process()
         self.complete()
-    
-    
-class HelloPrinter(PipelineChainLink):
-    
-    def before_process(self):
-        pass
-
-    def process(self, value=1):
-        print("hello world")
-
-    def after_process(self):
-        pass
-
-def main():
-    hello = HelloPrinter()
-    HelloPrinter(hello).run()
-
-if __name__ == "__main__":
-    main()
