@@ -15,6 +15,8 @@ In android we have states that an application can be found. Starting, Running, P
 
 ## Why python?
 it is readable, more flexible than yaml. Also it is widely used by the system administration community.
+### Google Python Style Guide
+https://google.github.io/styleguide/pyguide.html
 
 ## Infrastructure management.
 At first, the goal is to have this project run on docker. Then it will be useful to add different infrastracture management frameworks support like hadoop yarn and apache messos.
