@@ -1,3 +1,5 @@
+![alt text](http://openjdk.java.net/projects/mlvm/images/helicopter.png)
+
 # renaissanceCI
 This is a Continious integration framework base on simplicity of two design paterns and the readability of python.
 
