@@ -34,27 +34,46 @@ class GitCheckoutFromDocker(PipelineChainLink):
         
         container = self.client.create_container(
                                                  image='governmentpaas/git-ssh:latest',
-                                                 command="git clone https://github.com/docker/docker-py.git /home",
+                                                 command="git clone https://github.com/d4md1n/TrainingApp.git /home",
                                                  volumes=volumes,
                                                  host_config=host_config,
                                                 ) 
         self.client.start(container)
         self.result = container.get("Id")
+        self.client.wait(container)
 
     def after_process(self):
         print(self.result)
 
 class JavaBuildWithDocker(PipelineChainLink):
-    
     def before_process(self):
-        pass
+        self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
+        self.data['host_volume_path'] = os.path.abspath("./test")
 
     def process(self):
-        print(self.data['host_volume_path'])
+        volumes= ['/home']
+        host_volume_path = self.data['host_volume_path'] 
+        volume_bindings = {
+                           host_volume_path: {
+                               'bind': '/home',
+                               'mode': 'rw',
+                          }
+        }
+
+        host_config = self.client.create_host_config(binds=volume_bindings)
+        
+        container = self.client.create_container(
+                                                 image='library/java',
+                                                 command="/bin/bash /home/gradlew build",
+                                                 volumes=volumes,
+                                                 host_config=host_config, working_dir = "/home"
+                                                ) 
+        self.client.start(container)
+        self.result = container.get("Id")
+        self.client.wait(container)
 
     def after_process(self):
-        print("done")
-
+        print(self.result)
 
 def main():
     javaBuildWithDocker = JavaBuildWithDocker()
