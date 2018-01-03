@@ -4,7 +4,7 @@
 This is a Continious integration framework based on the simplicity of two design paterns and the readability of python.
 
 # Testable pipelines
-test your pipeline and each step seperately
+test your pipeline and each step seperately, since pipelines are software they can be tested with unit tests
 
 ## Chain of responsibility pattern.
 Every pipeline can be discribed like a sequence of steps. Every step is agnostic to its previous or its next.
