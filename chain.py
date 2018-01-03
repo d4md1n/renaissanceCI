@@ -6,7 +6,8 @@ class ChainLink(metaclass=abc.ABCMeta) :
         self._successor = successor
 
 class PipelineChainLink(ChainLink, metaclass=abc.ABCMeta):
-    
+    data = {}
+
     @abc.abstractmethod
     def before_process(self):
         pass
@@ -21,6 +22,7 @@ class PipelineChainLink(ChainLink, metaclass=abc.ABCMeta):
 
     def complete(self):
         if self._successor is not None:
+            self._successor.data = self.data
             self._successor.run()
 
     def run(self):

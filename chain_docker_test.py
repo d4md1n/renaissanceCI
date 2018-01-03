@@ -18,10 +18,11 @@ class GitCheckoutFromDocker(PipelineChainLink):
     
     def before_process(self):
         self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
+        self.data['host_volume_path'] = os.path.abspath("./test")
 
     def process(self):
         volumes= ['/home']
-        host_volume_path = os.path.abspath("./test") 
+        host_volume_path = self.data['host_volume_path'] 
         volume_bindings = {
                            host_volume_path: {
                                'bind': '/home',
@@ -43,8 +44,21 @@ class GitCheckoutFromDocker(PipelineChainLink):
     def after_process(self):
         print(self.result)
 
+class JavaBuildWithDocker(PipelineChainLink):
+    
+    def before_process(self):
+        pass
+
+    def process(self):
+        print(self.data['host_volume_path'])
+
+    def after_process(self):
+        print("done")
+
+
 def main():
-    gitCheckoutFromDocker = GitCheckoutFromDocker()
+    javaBuildWithDocker = JavaBuildWithDocker()
+    gitCheckoutFromDocker = GitCheckoutFromDocker(javaBuildWithDocker)
     sayHelloFromDocker = SayHelloFromDocker(gitCheckoutFromDocker)
     sayHelloFromDocker.run()
 
