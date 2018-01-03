@@ -1,8 +1,10 @@
 ![alt text](http://openjdk.java.net/projects/mlvm/images/helicopter.png)
 
 # renaissanceCI
-This is a Continious integration framework base on simplicity of two design paterns and the readability of python.
+This is a Continious integration framework based on the simplicity of two design paterns and the readability of python.
 
+# Testable pipelines
+test your pipeline and each step seperately
 
 ## Chain of responsibility pattern.
 Every pipeline can be discribed like a sequence of steps. Every step is agnostic to its previous or its next.
