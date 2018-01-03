@@ -41,6 +41,7 @@ class GitCheckoutFromDocker(PipelineChainLink):
         self.client.start(container)
         self.result = container.get("Id")
         self.client.wait(container)
+        print(self.client.logs(container))
 
     def after_process(self):
         print(self.result)
@@ -71,6 +72,7 @@ class JavaBuildWithDocker(PipelineChainLink):
         self.client.start(container)
         self.result = container.get("Id")
         self.client.wait(container)
+        print(self.client.logs(container))
 
     def after_process(self):
         print(self.result)
