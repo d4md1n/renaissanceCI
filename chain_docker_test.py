@@ -4,15 +4,23 @@ import docker
 import os
 
 class SayHelloFromDocker(PipelineChainLink):
-    
+
     def before_process(self):
-        self.client = docker.from_env()
+        self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
 
     def process(self):
-        self.result = self.client.containers.run("ubuntu:latest", "echo hello world")
+        container = self.client.create_container(
+                                                 image='ubuntu:latest',
+                                                 command="echo hello world",
+                                                 working_dir = "/home"
+                                                ) 
+        self.client.start(container)
+        self.result = container.get("Id")
+        self.client.wait(container)
+        print(self.client.logs(container))
 
     def after_process(self):
-        print(self.result)
+        print(self.result)   
 
 class GitCheckoutFromDocker(PipelineChainLink):
     
@@ -34,7 +42,7 @@ class GitCheckoutFromDocker(PipelineChainLink):
         
         container = self.client.create_container(
                                                  image='governmentpaas/git-ssh:latest',
-                                                 command="git clone https://github.com/d4md1n/TrainingApp.git /home",
+                                                 command="git clone https://github.com/spring-guides/gs-spring-boot.git /home",
                                                  volumes=volumes,
                                                  host_config=host_config,
                                                 ) 
@@ -47,6 +55,7 @@ class GitCheckoutFromDocker(PipelineChainLink):
         print(self.result)
 
 class JavaBuildWithDocker(PipelineChainLink):
+
     def before_process(self):
         self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
         self.data['host_volume_path'] = os.path.abspath("./test")
@@ -65,7 +74,39 @@ class JavaBuildWithDocker(PipelineChainLink):
         
         container = self.client.create_container(
                                                  image='library/java',
-                                                 command="/bin/bash /home/gradlew build",
+                                                 command="/bin/bash /home/complete/gradlew build",
+                                                 volumes=volumes,
+                                                 host_config=host_config, working_dir = "/home"
+                                                ) 
+        self.client.start(container)
+        self.result = container.get("Id")
+        self.client.wait(container)
+        print(self.client.logs(container))
+
+    def after_process(self):
+        print(self.result)
+
+class ClearDirectoryWithDocker(PipelineChainLink):
+
+    def before_process(self):
+        self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
+        self.data['host_volume_path'] = os.path.abspath("./test")
+
+    def process(self):
+        volumes= ['/home']
+        host_volume_path = self.data['host_volume_path'] 
+        volume_bindings = {
+                           host_volume_path: {
+                               'bind': '/home',
+                               'mode': 'rw',
+                          }
+        }
+
+        host_config = self.client.create_host_config(binds=volume_bindings)
+        
+        container = self.client.create_container(
+                                                 image='ubuntu:latest',
+                                                 command="rm -rf /home",
                                                  volumes=volumes,
                                                  host_config=host_config, working_dir = "/home"
                                                 ) 
@@ -78,7 +119,8 @@ class JavaBuildWithDocker(PipelineChainLink):
         print(self.result)
 
 def main():
-    javaBuildWithDocker = JavaBuildWithDocker()
+    clearDirectoryWithDocker = ClearDirectoryWithDocker()
+    javaBuildWithDocker = JavaBuildWithDocker(clearDirectoryWithDocker)
     gitCheckoutFromDocker = GitCheckoutFromDocker(javaBuildWithDocker)
     sayHelloFromDocker = SayHelloFromDocker(gitCheckoutFromDocker)
     sayHelloFromDocker.run()
