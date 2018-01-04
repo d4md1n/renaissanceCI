@@ -1,4 +1,4 @@
-from core.chain import PipelineChainLink
+from renaissance_ci.core.chain import PipelineChainLink
 
 import docker
 import os
