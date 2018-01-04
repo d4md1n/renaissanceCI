@@ -1,4 +1,4 @@
-from chain import PipelineChainLink
+from core.chain import PipelineChainLink
 
 import unittest
 
