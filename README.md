@@ -1,4 +1,4 @@
-![alt text](static_resources/helicopter.png)
+![alt text](renaissance_ci/static_resources/helicopter.png)
 
 # renaissanceCI
 This is a Continious integration framework based on the simplicity of two design paterns and the readability of python.
