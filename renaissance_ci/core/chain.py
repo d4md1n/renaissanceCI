@@ -1,9 +1,10 @@
 import abc
 
-class ChainLink(metaclass=abc.ABCMeta) :
 
+class ChainLink(metaclass=abc.ABCMeta):
     def __init__(self, successor=None):
         self._successor = successor
+
 
 class PipelineChainLink(ChainLink, metaclass=abc.ABCMeta):
     data = {}
