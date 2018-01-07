@@ -58,7 +58,7 @@ class GitCheckoutFromDocker(PipelineChainLink):
 class JavaBuildWithDocker(PipelineChainLink):
     def before_process(self):
         self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
-        self.data['host_volume_path'] = os.path.abspath("./test")
+        self.data['host_volume_path'] = os.path.abspath("./test_docker_dir")
 
     def process(self):
         volumes = ['/home']
@@ -90,7 +90,7 @@ class JavaBuildWithDocker(PipelineChainLink):
 class ClearDirectoryWithDocker(PipelineChainLink):
     def before_process(self):
         self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
-        self.data['host_volume_path'] = os.path.abspath("./test")
+        self.data['host_volume_path'] = os.path.abspath("./test_docker_dir")
 
     def process(self):
         volumes = ['/home']
@@ -117,15 +117,3 @@ class ClearDirectoryWithDocker(PipelineChainLink):
 
     def after_process(self):
         print(self.result)
-
-
-def main():
-    clear_directory_with_docker = ClearDirectoryWithDocker()
-    java_build_with_docker = JavaBuildWithDocker(clear_directory_with_docker)
-    gitCheckoutFromDocker = GitCheckoutFromDocker(java_build_with_docker)
-    say_hello_from_docker = SayHelloFromDocker(gitCheckoutFromDocker)
-    say_hello_from_docker.run()
-
-
-if __name__ == "__main__":
-    main()
