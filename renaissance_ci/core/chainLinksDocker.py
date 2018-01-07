@@ -117,15 +117,3 @@ class ClearDirectoryWithDocker(PipelineChainLink):
 
     def after_process(self):
         print(self.result)
-
-
-def main():
-    clear_directory_with_docker = ClearDirectoryWithDocker()
-    java_build_with_docker = JavaBuildWithDocker(clear_directory_with_docker)
-    gitCheckoutFromDocker = GitCheckoutFromDocker(java_build_with_docker)
-    say_hello_from_docker = SayHelloFromDocker(gitCheckoutFromDocker)
-    say_hello_from_docker.run()
-
-
-if __name__ == "__main__":
-    main()
