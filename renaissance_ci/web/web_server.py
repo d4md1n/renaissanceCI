@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import asyncio
 import concurrent.futures
 import renaissance_ci.core.chain
@@ -8,7 +8,7 @@ import renaissance_ci.core.ChainGenerator as ChainGenerator
 app = Flask(__name__)
 app.template_folder = '../resources/templates'
 loop = asyncio.get_event_loop()
-executor = concurrent.futures.ThreadPoolExecutor(max_workers=3,)
+executor = concurrent.futures.ThreadPoolExecutor(max_workers=3, )
 
 
 @app.route('/')
@@ -18,11 +18,19 @@ def test_template():
                            result=renaissance_ci.core.chain.PipelineChainLink.__subclasses__())
 
 
-@app.route('/chain')
+@app.route('/chain', methods=['POST'])
 def test_chain():
-    chain = ChainGenerator.generate_docker_chain_link()
+    data = request.form
+    print(data)
+
+    chain = ChainGenerator.generate_docker_chain_with_parameters(data['gitRepo'], gradle_command=data['gradleCommand'])
     loop.run_in_executor(executor, start_chain, chain)
-    return "ok"
+    return "chainStarted"
+
+
+@app.route('/chain/config')
+def get_chain_config_page():
+    return render_template("chainConfig.html")
 
 
 def start_chain(chain):

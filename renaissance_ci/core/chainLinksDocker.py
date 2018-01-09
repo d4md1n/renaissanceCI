@@ -24,6 +24,10 @@ class SayHelloFromDocker(PipelineChainLink):
 
 
 class GitCheckoutFromDocker(PipelineChainLink):
+    def __init__(self, successor=None, git_repository=''):
+        super().__init__(successor)
+        self._git_repository = git_repository
+
     def before_process(self):
         self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
         self.data['host_volume_path'] = os.path.abspath("./test_docker_dir")
@@ -42,7 +46,7 @@ class GitCheckoutFromDocker(PipelineChainLink):
 
         container = self.client.create_container(
             image='governmentpaas/git-ssh:latest',
-            command="git clone https://github.com/spring-guides/gs-spring-boot.git /home",
+            command="git clone %s /home" % self._git_repository,
             volumes=volumes,
             host_config=host_config,
         )
@@ -56,6 +60,11 @@ class GitCheckoutFromDocker(PipelineChainLink):
 
 
 class JavaBuildWithDocker(PipelineChainLink):
+    def __init__(self, successor=None, gradlew_command = "build"):
+        super().__init__(successor)
+        self._gradle_command = gradlew_command
+
+
     def before_process(self):
         self.client = docker.APIClient(base_url='unix://var/run/docker.sock')
         self.data['host_volume_path'] = os.path.abspath("./test_docker_dir")
@@ -72,9 +81,10 @@ class JavaBuildWithDocker(PipelineChainLink):
 
         host_config = self.client.create_host_config(binds=volume_bindings)
 
+
         container = self.client.create_container(
             image='library/java',
-            command="/bin/bash /home/complete/gradlew build",
+            command=("/bin/bash /home/complete/gradlew %s" % self._gradle_command),
             volumes=volumes,
             host_config=host_config, working_dir="/home"
         )
